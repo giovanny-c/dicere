@@ -20,6 +20,7 @@
     "socket.io": "^4.7.1",
     "ts-node-dev": "^2.0.0",
     "tsyringe": "^4.8.0",
+    "typeorm": "^0.3.17",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

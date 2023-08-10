@@ -8,7 +8,7 @@ import cors from "cors"
 import "express-async-errors"
 
 import "./redis/redisConnect"
-import session from "express-session"
+
 import { redisSession, wrapSessionForSocketIo } from "./session/redisSession";
 
 import {createServer} from "http"

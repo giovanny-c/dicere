@@ -1,4 +1,7 @@
 import { inject, injectable } from "tsyringe";
+import { IUsersRepository } from "../repositories/IUsersRepository";
+import { AppError } from "../../../shared/erros/AppError";
+import { validatePassword } from "../../../utils/passwordUtils";
 
 interface IRequest {
     nameOrEmail: string
@@ -11,7 +14,7 @@ interface IResponse {
         name: string,
         admin?: boolean 
     }
-    created_at: Date
+    // created_at: Date
 
 }
 
@@ -20,8 +23,8 @@ interface IResponse {
 class AuthenticateUserUseCase {
 
     constructor(
-        // @inject("UsersRepository")
-        // private usersRepository: IUsersRepository,
+        @inject("UsersRepository")
+        private usersRepository: IUsersRepository,
         // @inject("DayjsDateProvider")
         // private dateProvider: IDateProvider,
         // @inject("CacheProvider")
@@ -32,22 +35,22 @@ class AuthenticateUserUseCase {
 
         nameOrEmail = nameOrEmail.replace(/\s+$/g, "")
 
-        // const user = await this.usersRepository.findOneByEmailOrName(nameOrEmail); //mudar depois
+        const user = await this.usersRepository.findByNameOrEmail({email: nameOrEmail, name: nameOrEmail}); //mudar depois
 
 
-        // if (!user) {
-        //     throw new AppError("nome de usuário ou senha incorretos")
-        // }
+        if (!user) {
+            throw new AppError("nome de usuário ou senha incorretos", 401)
+        }
 
-        // const passwordMatch = validatePassword(password, user.salt, user.password_hash)
+        const passwordMatch = validatePassword(password, user.salt, user.password_hash)
 
-        // if (!passwordMatch) { //trocar para validate password
-        //     throw new AppError("nome de usuário ou senha incorretos")
+        if (!passwordMatch) {
+            throw new AppError("nome de usuário ou senha incorretos", 401)
 
-        // }
+        }
 
         
-        // //criar se nao  existir e altera se ja existir
+        // precisa criar se vai salvar a session do user no redis?
         // await this.cacheProvider.set(`user-${user.id}`, JSON.stringify(instanceToPlain(user)))
 
         // const created_at = this.dateProvider.dateNow()
@@ -59,7 +62,7 @@ class AuthenticateUserUseCase {
                 name: user.name,
                 admin: user.admin
             },
-            created_at
+            // created_at
         }
         
         

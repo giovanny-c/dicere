@@ -7,9 +7,13 @@ import cors from "cors"
 
 import "express-async-errors"
 
-import "./redis/redisConnect"
+import "./shared/container" 
 
-import { redisSession, wrapSessionForSocketIo } from "./session/redisSession";
+import "./database"
+
+import "./shared/redis/redisConnect"
+
+import { redisSession, wrapSessionForSocketIo } from "./shared/session/redisSession";
 
 import {createServer} from "http"
 import socketio, {Socket} from "socket.io"

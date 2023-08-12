@@ -1,7 +1,8 @@
 import { inject, injectable } from "tsyringe";
-import { IUsersRepository } from "../repositories/IUsersRepository";
-import { AppError } from "../../../shared/erros/AppError";
-import { validatePassword } from "../../../utils/passwordUtils";
+import { IUsersRepository } from "../../repositories/IUsersRepository";
+import { AppError } from "../../../../shared/erros/AppError";
+import { validatePassword } from "../../../../utils/passwordUtils";
+
 
 interface IRequest {
     nameOrEmail: string

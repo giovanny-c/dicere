@@ -3,7 +3,7 @@ import { Router } from "express"
 
 const loginRoutes = Router()
 
-import {AuthenticateUserController} from "../modules/users/useCases/AuthenticateUserController"
+import {AuthenticateUserController} from "../modules/users/useCases/AuthenticateUser/AuthenticateUserController"
 
 
 const authenticateUserController = new AuthenticateUserController()

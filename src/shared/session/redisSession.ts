@@ -1,14 +1,16 @@
 import "dotenv/config"
 
 import { redisClient } from "../redis/redisConfig"
-import connectRedis from "connect-redis"
+
+import RedisStore from "connect-redis"
 
 import session from "express-session"
 
 import { Socket } from "socket.io"
 import { NextFunction } from "express"
 
-let RedisStore = connectRedis(session)
+
+
 
 const redisSession = session({
     secret: process.env.SESSION_SECRET as string,

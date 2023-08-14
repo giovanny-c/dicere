@@ -5,6 +5,8 @@
   "author": "Giovanny Castanharo <giovanycast@hotmail.com>",
   "license": "MIT",
   "scripts": {
+    "migration:run": "ts-node-dev ./node_modules/typeorm/cli migration:run -d \"./src/database/runMigration.ts\" ",
+    "migration:revert": "ts-node-dev ./node_modules/typeorm/cli migration:revert -d \"./src/database/runMigration.ts\" ",
     "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules --respawn --poll src/server.ts"
   },
   "dependencies": {
@@ -15,6 +17,7 @@
     "express-session": "^1.17.3",
     "fs": "^0.0.1-security",
     "multer": "^1.4.5-lts.1",
+    "pg": "^8.11.2",
     "redis": "^4.6.7",
     "reflect-metadata": "^0.1.13",
     "socket.io": "^4.7.1",
@@ -24,7 +27,6 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/connect-redis": "^0.0.20",
     "@types/express": "^4.17.17",
     "@types/multer": "^1.4.7",
     "@types/uuid": "^9.0.2",

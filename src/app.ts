@@ -7,7 +7,7 @@ import cors from "cors"
 
 import "express-async-errors"
 
-import "./shared/container" 
+import "./shared/containers" 
 
 import "./database"
 

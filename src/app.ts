@@ -9,7 +9,7 @@ import "express-async-errors"
 
 import "./shared/containers" 
 
-import "./database"
+import "./database/index"
 
 import "./shared/redis/redisConnect"
 

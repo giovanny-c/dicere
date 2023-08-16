@@ -2,23 +2,33 @@ import "reflect-metadata"
 import {DataSource} from "typeorm"
 import "dotenv/config"
 
+const {
+    PRODUCTION,
+    DB_HOST,
+    DB_MASK_PORT,
+    DB_PORT,
+    DB_NAME,
+    DB_PASSWORD,
+    DB_USER,
+    DB_ENTITIES,
+    DB_MIGRATIONS,
+} = process.env
+
 export const dataSource: DataSource = new DataSource({
-
     type: "postgres",
-    host: process.env.PRODUCTION ? process.env.DB_HOST : "database",
-    port: process.env.PRODUCTION ? +(process.env.DB_MASK_PORT) : +(process.env.DB_PORT),
-    username: process.env.DB_USER as string,
-    password: process.env.DB_PASSWORD as string,
-    database: process.env.DB_NAME as string,
-    
+    host: PRODUCTION ? DB_HOST : "database",
+    port: PRODUCTION ? +(DB_MASK_PORT) : +(DB_PORT),
+    username: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_NAME,
 
-    entities: [
-        process.env.PRODUCTION? process.env.DB_ENTITIES : "./src/modules/**/entities/*.ts"
+    entities:[
+        PRODUCTION ? DB_ENTITIES : "./src/modules/**/entities/*.ts"
     ],
-    migrations: [
-        process.env.PRODUCTION? process.env.DB_MIGRATIONS : "./src/database/migrations/*.ts"
-    ],
+    migrations:[
+        PRODUCTION ? DB_MIGRATIONS : "./src/database/migrations/*.ts"
 
+    ]
 })
 
-dataSource.initialize()
+dataSource.initialize().then(()=> console.log("database conneced"))

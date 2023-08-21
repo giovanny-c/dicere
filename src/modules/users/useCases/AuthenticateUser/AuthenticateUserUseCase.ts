@@ -34,7 +34,7 @@ class AuthenticateUserUseCase {
 
     async execute({ nameOrEmail, password }: IRequest): Promise<IResponse> {
 
-        nameOrEmail = nameOrEmail.replace(/\s+$/g, "")
+        // nameOrEmail = nameOrEmail.replace(/\s+$/g, "")
 
         const user = await this.usersRepository.findByNameOrEmail({email: nameOrEmail, name: nameOrEmail}); //mudar depois
 

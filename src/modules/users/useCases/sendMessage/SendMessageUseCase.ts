@@ -32,6 +32,7 @@ class SendMessageUseCase{
 
         //como enviar para o user
         // socketHandler.to()
+        
 
     }
 

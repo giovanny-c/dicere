@@ -20,7 +20,7 @@ class AuthenticateUserController{
             req.session.cookie.originalMaxAge = 1000 * 60 * 60
         }
 
-        return res.redirect("/")
+        return res.status(200).json({session: req.session})
     }
 }
 

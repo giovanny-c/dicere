@@ -20,6 +20,7 @@ import socketio, {Socket} from "socket.io"
 
 import {v4 as uuidV4} from "uuid"
 import router from "./routes/router";
+import { errorHandler } from "./shared/erros/errorHandler";
 
 const app = express()
 
@@ -53,6 +54,8 @@ socketHandler.on("connection", (socket: Socket) =>{
 
 
 app.use(router)
+
+app.use(errorHandler)
 
 
 export {app, httpServer, socketHandler}

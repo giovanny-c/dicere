@@ -16,7 +16,7 @@ const {
 
 export const dataSource: DataSource = new DataSource({
     type: "postgres",
-    host: PRODUCTION ? DB_HOST : "database",
+    host: PRODUCTION ? DB_HOST : "dicere_database",
     port: PRODUCTION ? +(DB_MASK_PORT) : +(DB_PORT),
     username: DB_USER,
     password: DB_PASSWORD,
@@ -31,4 +31,4 @@ export const dataSource: DataSource = new DataSource({
     ]
 })
 
-dataSource.initialize().then(()=> console.log("database conneced"))
+dataSource.initialize().then(()=> console.log("connected to dicere_database"))

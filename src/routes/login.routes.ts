@@ -1,9 +1,12 @@
 import { Router } from "express"
 
+import {AuthenticateUserController} from "../modules/users/useCases/AuthenticateUser/AuthenticateUserController"
+import multer from "multer"
 
 const loginRoutes = Router()
 
-import {AuthenticateUserController} from "../modules/users/useCases/AuthenticateUser/AuthenticateUserController"
+const upload = multer()
+
 
 
 const authenticateUserController = new AuthenticateUserController()
@@ -11,7 +14,7 @@ const authenticateUserController = new AuthenticateUserController()
 // loginRoutes.get("/entrar", handleMessage, loadLoginPageController.handle)
 
 //multer?
-loginRoutes.post("/sessao", authenticateUserController.handle)
+loginRoutes.post("/sessao", upload.none(), authenticateUserController.handle)
 
 // loginRoutes.get("/sair", ensureAuthenticated, handleMessage, logOutController.handle) //fazer
 

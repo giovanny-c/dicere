@@ -31,8 +31,10 @@ class SendMessageUseCase{
         if(!receiverExists) throw new AppError("Usuario não encontrado ou não existe.", 400)
 
         //como enviar para o user
-        // socketHandler.to()
-        
+        console.log(socketHandler.sockets.sockets)
+
+        return 
+
 
     }
 

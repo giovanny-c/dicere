@@ -37,7 +37,8 @@ socketHandler.use(wrapSessionForSocketIo(redisSession))
 
 socketHandler.on("connection", (socket: Socket) =>{
     
-        
+    console.log(socket.id)
+    
     //@ts-expect-error
     const user = socket.request.session.user //|| uuidV4()
 

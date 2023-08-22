@@ -11,9 +11,9 @@ class CreateUserController {
 
         const {name, password, email, admin} = req.body
 
-        const authenticateUser = container.resolve(CreateUserUseCase)
+        const createUser = container.resolve(CreateUserUseCase)
 
-        const response = await authenticateUser.execute({name, email, admin: admin === "true" ? true : false , password})
+        const response = await createUser.execute({name, email, admin: admin === "true" ? true : false , password})
 
         
 

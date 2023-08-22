@@ -37,12 +37,14 @@ socketHandler.use(wrapSessionForSocketIo(redisSession))
 
 socketHandler.on("connection", (socket: Socket) =>{
     
-    console.log(socket.id)
+    
+    
     
     //@ts-expect-error
     const user = socket.request.session.user //|| uuidV4()
-
+    
     console.log(user)
+    console.log(socket.id)
 
     if(user.id){
         user.id = uuidV4()
@@ -51,6 +53,9 @@ socketHandler.on("connection", (socket: Socket) =>{
 
     //@ts-expect-error
     socket.user = user
+
+    //join room of its id
+    socket.join(user.id)
 })
 
 

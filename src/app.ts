@@ -40,22 +40,23 @@ socketHandler.on("connection", (socket: Socket) =>{
     
     
     
-    //@ts-expect-error
-    const user = socket.request.session.user //|| uuidV4()
+    // //@ts-expect-error
+    // const user = socket.request.session.user //|| uuidV4()
     
-    console.log(user)
+    //@ts-expect-error
+    console.log(socket.request.session)
     console.log(socket.id)
 
-    if(user.id){
-        user.id = uuidV4()
-        user.name = "anonymous"
-    }
+    // if(!user){
+    //     user.id = uuidV4()
+    //     user.name = "anonymous"
+    // }
 
-    //@ts-expect-error
-    socket.user = user
+    // //@ts-expect-error
+    // socket.user = user
 
     //join room of its id
-    socket.join(user.id)
+    // socket.join(user.id)
 })
 
 

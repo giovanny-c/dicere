@@ -22,14 +22,31 @@ import {v4 as uuidV4} from "uuid"
 import router from "./routes/router";
 import { errorHandler } from "./shared/erros/errorHandler";
 
+
+import nunjucks from "nunjucks"
+import methodOverride from "method-override"
+
+
 const app = express()
 
 const httpServer = createServer(app)
 const socketHandler = new socketio.Server(httpServer)
 
+//front
+app.use(express.static("public"))
+
+app.use(methodOverride('_method'));//front
+
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
+
+nunjucks.configure("public", {
+    express: app,
+    autoescape: true,
+    noCache: true
+})
+app.set("view engine", "njk")
 
 app.use(redisSession)
 
@@ -46,6 +63,8 @@ socketHandler.on("connection", (socket: Socket) =>{
     //@ts-expect-error
     console.log(socket.request.session)
     console.log(socket.id)
+
+    
 
     // if(!user){
     //     user.id = uuidV4()

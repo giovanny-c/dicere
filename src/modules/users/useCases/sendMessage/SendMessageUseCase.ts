@@ -32,7 +32,7 @@ class SendMessageUseCase{
         if(!receiverExists) throw new AppError("Usuario não encontrado ou não existe.", 400)
 
         //procura o user no room do receiver_id
-        const sockets = await socketHandler.in(receiver_id).fetchSockets()
+        const sockets = await socketHandler.fetchSockets()
 
         const receiver = sockets.map(socket => {
             //@ts-expect-error

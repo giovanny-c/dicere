@@ -7,8 +7,9 @@ import cors from "cors"
 
 import "express-async-errors"
 
-import "./shared/containers" 
 
+import "./shared/container"
+ 
 import "./database/index"
 
 import "./shared/redis/redisConnect"
@@ -22,8 +23,7 @@ import {v4 as uuidV4} from "uuid"
 import router from "./routes/router";
 import { errorHandler } from "./shared/erros/errorHandler";
 
-
-import nunjucks from "nunjucks"
+//se der ruim tirar
 import methodOverride from "method-override"
 
 
@@ -41,12 +41,6 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
-nunjucks.configure("public", {
-    express: app,
-    autoescape: true,
-    noCache: true
-})
-app.set("view engine", "njk")
 
 app.use(redisSession)
 

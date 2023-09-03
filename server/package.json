@@ -1,13 +1,13 @@
 {
   "name": "dicere",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.ts",
   "author": "Giovanny Castanharo <giovanycast@hotmail.com>",
   "license": "MIT",
   "scripts": {
     "migration:run": "ts-node-dev ./node_modules/typeorm/cli migration:run -d \"./src/database/runMigration.ts\" ",
     "migration:revert": "ts-node-dev ./node_modules/typeorm/cli migration:revert -d \"./src/database/runMigration.ts\" ",
-    "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules --respawn --poll src/server.ts"
+    "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules --respawn --poll ./src/server.ts"
   },
   "dependencies": {
     "connect-redis": "^7.1.0",

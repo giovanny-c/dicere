@@ -30,7 +30,11 @@ import methodOverride from "method-override"
 const app = express()
 
 const httpServer = createServer(app)
-const socketHandler = new socketio.Server(httpServer)
+const socketHandler = new socketio.Server(httpServer, {
+    cors: {
+        origin: "http://localhost:3000"//porta do que o react ta usando
+    }
+})
 
 //front
 app.use(express.static("public"))
@@ -48,7 +52,16 @@ socketHandler.use(wrapSessionForSocketIo(redisSession))
 
 socketHandler.on("connection", (socket: Socket) =>{
     
-    
+    console.log("[IO] Connection => Server has a new connection")
+
+    //quando o evento for disparado pelo cliente no front end
+    socket.on("new.message", (data) => {
+        console.log(`[SOCKET] new.message =>`, data)
+
+        // o servidor vai emitir esse mesmo evento para todos
+        socketHandler.emit("new.message", data)
+    })
+
     
     
     // //@ts-expect-error

@@ -11,7 +11,10 @@ const upload = multer()
 
 const authenticateUserController = new AuthenticateUserController()
 
-// loginRoutes.get("/entrar", handleMessage, loadLoginPageController.handle)
+loginRoutes.get("/entrar", /*handleMessage*/ (req, res) => {
+
+    return res.render("login")
+})
 
 //multer?
 loginRoutes.post("/sessao", upload.none(), authenticateUserController.handle)

@@ -7,7 +7,7 @@ const router = Router()
 // router.use(limitSessions)
 
 
-router.get("/", /*ensureAuthenticated,*/ (req, res) => {
+router.get("/", ensureAuthenticated, (req, res) => {
 
     const user = req.user
 

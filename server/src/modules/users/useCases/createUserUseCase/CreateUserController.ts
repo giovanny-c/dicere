@@ -17,7 +17,7 @@ class CreateUserController {
 
         
 
-        return res.status(201).json({user: response})
+        return res.status(201).redirect("/entrar")
     }
 }
 

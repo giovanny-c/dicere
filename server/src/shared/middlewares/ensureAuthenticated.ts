@@ -11,7 +11,7 @@ export async function ensureAuthenticated(req: Request, res: Response, next: Nex
             status: 401
         }
 
-        return res.status(401).json({message: "Sessão expirada!"})
+        return res.status(401).redirect("/entrar")
 
     }
 

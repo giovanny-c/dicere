@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dicere</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+    <form id=chat>
+        <div class="messages"></div>
+        <input type="text" name="message" placeholder="...">
+        <button type="submit">Enviar</button>
+    </form>
+
+    <script type="text/javascript">
+
+        var socket = io("http://localhost:3333")
+
+        function renderMessage(message){
+            $(".messages").append("<div class='message'> <strong> " + message.user + "</strong>: " + message.message +"</div>")
+        }
+
+    <!--vai pegar as msgs passafas-->
+
+        socket.on("previous_messages", (messages) => {
+            for(message of messages){
+                renderMessage(message)
+            }
+        })
+
+   
+    <!--vai pegar a msg que foi emitida por outro user e exibir -->
+   
+        socket.on("emit_message", (message) => {
+            renderMessage(message)
+        })
+
+
+    <!-- jquery? -->
+        $("#chat").submit(function(event){
+
+
+           
+            event.preventDefault()
+
+            var message = $("input[name=message]").val()
+
+            $("input[name=message]").val("")
+        
+            if(message.length){
+
+                var messageObject = {
+                    user: "<%=user%>",
+                    message: message
+                }
+                
+                //renderiza na tela de que esta enviando apenas
+                renderMessage(messageObject)
+
+                //envia pro servidor, para ser emitada para outro user
+                socket.emit("send_message", messageObject)
+
+            }
+
+
+        }) 
+
+    </script>
+
+</body>
+</html>

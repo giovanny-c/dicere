@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import { IUsersRepository } from "../../repositories/IUsersRepository";
 import { AppError } from "../../../../shared/erros/AppError";
-import { socketHandler } from "../../../../app";
+import { io } from "../../../../app";
 import { response } from "express";
 
 
@@ -32,7 +32,7 @@ class SendMessageUseCase{
         if(!receiverExists) throw new AppError("Usuario não encontrado ou não existe.", 400)
 
         //procura o user no room do receiver_id
-        const sockets = await socketHandler.fetchSockets()
+        const sockets = await io.fetchSockets()
 
         const receiver = sockets.map(socket => {
             //@ts-expect-error
@@ -57,7 +57,7 @@ class SendMessageUseCase{
         }
 
         //como mandar por outro user (pelo socket do sender, nao pelo socket do servidor)?
-        socketHandler.to(receiver_id).emit("message", { message_object })
+        io.to(receiver_id).emit("message", { message_object })
 
 
 

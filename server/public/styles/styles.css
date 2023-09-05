@@ -44,3 +44,16 @@ button {
     border: 1px solid #ddd;
     padding: 20px;
 }
+
+.rooms {
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.rooms div button {
+    margin: 20px 20px;
+    width: 50px;
+}

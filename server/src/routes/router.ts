@@ -11,7 +11,7 @@ router.get("/", ensureAuthenticated, (req, res) => {
 
     const user = req.user
 
-    return res.render("index", {user: user?.name || "anonymous"})
+    return res.render("index", {user: user || "anonymous"})
 })
 
 router.use(loginRoutes)

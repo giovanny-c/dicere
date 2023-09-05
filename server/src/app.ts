@@ -25,6 +25,8 @@ import socketio, {Socket} from "socket.io"
 import router from "./routes/router";
 import { errorHandler } from "./shared/erros/errorHandler";
 
+import nunjucks from "nunjucks"
+
 //se der ruim tirar
 import methodOverride from "method-override"
 
@@ -47,29 +49,61 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
-app.set("views", "public/views")
-app.engine("html", ejs.renderFile)
-app.set("view engine", "html")
+
+
+nunjucks.configure("public/views", {
+    express: app,
+    autoescape: true,
+    noCache: true
+})
+app.set("view engine", "njk")
 
 
 app.use(redisSession)
 
 io.use(wrapSessionForSocketIo(redisSession))
 
-//substituir pelo redis
-let temporario = []
+
+io.use((socket, next) => {
+    //@ts-expect-error
+    const user = socket.request.session.user
+
+    if(!user){
+        return next(new Error("Invalid user!"))
+    }
+
+    //@ts-expect-error
+    socket.user = user
+
+
+    
+    next()
+
+})
 
 io.on("connection", (socket: Socket) =>{
     
-    //@ts-expect-error
-    console.log(socket.request.session)
 
-    socket.emit("previous_messages", temporario)
+    let users = []
+    for(let [id, socket] of io.of("/").sockets){
+
+        users.push({
+            id, 
+            //@ts-expect-error
+            user: socket.user
+        })
+
+    }
+
+    socket.emit("users", users)
+    
+
+    // socket.emit("previous_messages", temporario)
 
     //quando o evento for disparado pelo cliente no front end
     socket.on("send_message", (data) => {
         
-        temporario.push(data)
+        // temporario.push(data)
 
         
         // o socker(client) vai emitir esse mesmo evento para todos menos ele mesmo
@@ -78,23 +112,20 @@ io.on("connection", (socket: Socket) =>{
     })
 
     
+
+    socket.on("join_room", (room) => {
+        
+        socket.join(room)
+
+    })
+
+    // socket.to().broadcast.emit("emit_message", )
+
+    socket.on("leave_room", (room) => {
+        socket.leave(room)
+    })
     
-    // //@ts-expect-error
-    // const user = socket.request.session.user //|| uuidV4()
 
-
-    
-
-    // if(!user){
-    //     user.id = uuidV4()
-    //     user.name = "anonymous"
-    // }
-
-    // //@ts-expect-error
-    // socket.user = user
-
-    //join room of its id
-    // socket.join(user.id)
 })
 
 

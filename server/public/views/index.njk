@@ -17,8 +17,8 @@
         <input type="text" name="message" placeholder="...">
         <button type="submit">Enviar</button>
     </form>
-    {# <div class="rooms">
-        
+    <div class="rooms">
+{#         
         <div>
         
             <button class="room room_1">sala 1</button>
@@ -37,9 +37,9 @@
             
 
         </div>
-        
+         #}
 
-    </div> #}
+    </div>
 
     <script type="text/javascript">
 
@@ -68,14 +68,51 @@
             socket.off("connect_error")
         })
 
-        socket.on("users", (users) => {
-            console.log(users)
+        socket.on("emit_error", (err) => {
+            console.log(err)
+        })
+
+/**///problema com o input hiden
+
+       socket.on("users", (users) => {
+ 
+            for(user of users){          
+                $("<button/>", {
+                    text: user.user.name, 
+                    id:"user " + user.user.id,
+                   on: {
+                        click: function(event) {
+
+                            const [, receiver] = event.target.id.split(" ")
+        
+                            if(!$("input#receiver").length){
+
+                                $("<input>").attr({
+                                    type: "hidden",
+                                    id: "receiver",
+                                    name: "receiver",
+                                    value: receiver
+                                })
+                                .appendTo("form")
+                            }else{
+                            
+                                $("input#receiver").val(receiver)
+
+                            }
+                        } 
+                    }
+                   
+                }).appendTo(".rooms")
+                
+            }
+      
         })
 
 
 
         function renderMessage(message){
-            $(".messages").append("<div class='message'> <strong> " + message.user + "</strong>: " + message.message +"</div>")
+        
+            $(".messages").append("<div class='message'> <strong> " + message.sender.name + "</strong>: " + message.message +"</div>")
         }
 
     // <!--vai pegar as msgs passafas-->
@@ -93,36 +130,41 @@
             renderMessage(message)
         })
 
-        const user = "{{user.name}}"
+        const sender = {name:"{{user.name}}", id:"{{user.id}} "}
+
+        {# const receiver #}
 
     // <!-- jquery? -->
         $("#chat").submit(function(event){
-
-
-           
+    
             event.preventDefault()
 
             var message = $("input[name=message]").val()
 
             $("input[name=message]").val("")
-        
+
+            var receiver = $("input[name=receiver]").val()
+            
             if(message.length){
 
                 var messageObject = {
-                    user,
-                    message: message
+                    sender,
+                    receiver,
+                    message
                 }
-                
+    
                 //renderiza na tela de que esta enviando apenas
                 renderMessage(messageObject)
 
                 //envia pro servidor, para ser emitada para outro user
+                
                 socket.emit("send_message", messageObject)
 
             }
 
 
         }) 
+
 
         $(".room").click(function(event){
         
@@ -133,6 +175,18 @@
             socket.emit("join_room", room)
         
         })
+
+        $(".room").click(function(event){
+        
+            const [, room] = event.target.className.split(" ")
+
+            console.log(room)
+
+            socket.emit("join_room", room)
+        
+        })
+
+        
         
 
     </script>

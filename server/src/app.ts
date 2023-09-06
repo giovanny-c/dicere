@@ -83,19 +83,23 @@ io.use((socket, next) => {
 
 io.on("connection", (socket: Socket) =>{
     
+    //@ts-expect-error
+    const user = socket.request.session.user
 
-    let users = []
+    socket.join(user.id)
+
+    let sockets = []
     for(let [id, socket] of io.of("/").sockets){
 
-        users.push({
-            id, 
+        sockets.push({
+            socket_id: id, 
             //@ts-expect-error
             user: socket.user
         })
 
     }
 
-    socket.emit("users", users)
+    socket.emit("users", sockets)
     
 
     // socket.emit("previous_messages", temporario)
@@ -108,7 +112,14 @@ io.on("connection", (socket: Socket) =>{
         
         // o socker(client) vai emitir esse mesmo evento para todos menos ele mesmo
         //usar o room depois
-        socket.broadcast.emit("emit_message", data)
+        if(!data.receiver){
+
+            socket.emit("emit_error", "user not found")
+        }
+
+        socket.to(data.receiver).emit("emit_message", data)
+        //
+        //.broadcast.emit("emit_message", data)
     })
 
     

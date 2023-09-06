@@ -49,7 +49,7 @@
                 autoConnect: false
         })
 
-
+        //connecta o user no socket.io se houver um user_id
         function onLoginSelection(user_id) {
             
             socket.auth = {user_id}
@@ -60,6 +60,8 @@
 
         onLoginSelection("{{user.id}}")
 
+
+        //se houver erro
         socket.on("connect_error", (err) => {
             if (err.message === "invalid username") {
                 console.log("error:" + err)
@@ -68,38 +70,53 @@
             socket.off("connect_error")
         })
 
+
+
         socket.on("emit_error", (err) => {
             console.log(err)
         })
 
-/**///problema com o input hiden
 
-       socket.on("users", (users) => {
+        function createReceiverInput(receiver){
+            $("<input>").attr({
+                type: "hidden",
+                id: "receiver",
+                name: "receiver",
+                value: receiver
+            })
+            .appendTo("form")
+        }
+
+        function catchReceiver(event, receiver){
+            
+            if(!receiver){
+                receiver = event.target.id.split(" ")[1]
+            }
+
+            //cria um botao para mandar a msg pra um user
+            if(!$("input#receiver").length){
+
+                createReceiverInput(receiver)
+            }else{
+            
+                $("input#receiver").val(receiver)
+
+            }
+        } 
+
+        //carrega os users online
+        socket.on("users", (users) => {
  
             for(user of users){          
                 $("<button/>", {
                     text: user.user.name, 
                     id:"user " + user.user.id,
                    on: {
-                        click: function(event) {
-
-                            const [, receiver] = event.target.id.split(" ")
-        
-                            if(!$("input#receiver").length){
-
-                                $("<input>").attr({
-                                    type: "hidden",
-                                    id: "receiver",
-                                    name: "receiver",
-                                    value: receiver
-                                })
-                                .appendTo("form")
-                            }else{
+                        click: function (event ){
                             
-                                $("input#receiver").val(receiver)
-
-                            }
-                        } 
+                            catchReceiver(event)
+                        
+                        }
                     }
                    
                 }).appendTo(".rooms")
@@ -111,12 +128,22 @@
 
 
         function renderMessage(message){
-        
+
+            //se for de um usuario
+            if(message.sender.id){
+
+                catchReceiver(event, message.sender.id)
+            }
+
             $(".messages").append("<div class='message'> <strong> " + message.sender.name + "</strong>: " + message.message +"</div>")
+        
+        
         }
 
     // <!--vai pegar as msgs passafas-->
 
+
+        //carrega msgs antigas
         socket.on("previous_messages", (messages) => {
             for(message of messages){
                 renderMessage(message)
@@ -124,8 +151,7 @@
         })
 
    
-    // <!--vai pegar a msg que foi emitida por outro user e exibir -->
-   
+    // <!--vai pegar a msg que foi emitida e exibir para os outros users -->
         socket.on("emit_message", (message) => {
             renderMessage(message)
         })
@@ -134,7 +160,7 @@
 
         {# const receiver #}
 
-    // <!-- jquery? -->
+    // vai mandar a msg pro servidor
         $("#chat").submit(function(event){
     
             event.preventDefault()
@@ -166,6 +192,7 @@
         }) 
 
 
+        //muda de sala
         $(".room").click(function(event){
         
             const [, room] = event.target.className.split(" ")
@@ -176,15 +203,7 @@
         
         })
 
-        $(".room").click(function(event){
         
-            const [, room] = event.target.className.split(" ")
-
-            console.log(room)
-
-            socket.emit("join_room", room)
-        
-        })
 
         
         

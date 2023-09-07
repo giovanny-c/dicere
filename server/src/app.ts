@@ -117,7 +117,8 @@ io.on("connection", (socket: Socket) =>{
             socket.emit("emit_error", "user not found")
         }
 
-        socket.to(data.receiver).emit("emit_message", data)
+
+        socket.broadcast.to(data.receiver).emit("emit_message", data)
         //
         //.broadcast.emit("emit_message", data)
     })

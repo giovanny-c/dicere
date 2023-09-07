@@ -87,6 +87,7 @@
             .appendTo("form")
         }
 
+
         function catchReceiver(event, receiver){
             
             if(!receiver){
@@ -112,7 +113,7 @@
                     text: user.user.name, 
                     id:"user " + user.user.id,
                    on: {
-                        click: function (event ){
+                        click: function (event){
                             
                             catchReceiver(event)
                         
@@ -126,12 +127,19 @@
         })
 
 
+//para o usuario que mandou
+        function renderSubmitedMessage(message){
+        
+            $(".messages").append("<div class='message'> <strong> " + message.sender.name + "</strong>: " + message.message +"</div>")
+        
+        }
 
-        function renderMessage(message){
-
-            //se for de um usuario
+//para um user que vai receber
+        function renderEmitedMessage(message){
+        
+                     //se for de um usuario
             if(message.sender.id){
-
+                
                 catchReceiver(event, message.sender.id)
             }
 
@@ -146,17 +154,18 @@
         //carrega msgs antigas
         socket.on("previous_messages", (messages) => {
             for(message of messages){
-                renderMessage(message)
+                renderEmitedMessage(message)
             }
         })
 
    
     // <!--vai pegar a msg que foi emitida e exibir para os outros users -->
         socket.on("emit_message", (message) => {
-            renderMessage(message)
+        
+            renderEmitedMessage(message)
         })
 
-        const sender = {name:"{{user.name}}", id:"{{user.id}} "}
+        
 
         {# const receiver #}
 
@@ -174,13 +183,13 @@
             if(message.length){
 
                 var messageObject = {
-                    sender,
+                    sender: {name:"{{user.name}}", id:"{{user.id}}"},
                     receiver,
                     message
                 }
     
                 //renderiza na tela de que esta enviando apenas
-                renderMessage(messageObject)
+                renderSubmitedMessage(messageObject)
 
                 //envia pro servidor, para ser emitada para outro user
                 

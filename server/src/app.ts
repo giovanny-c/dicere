@@ -93,9 +93,9 @@ io.on("connection", (socket: ExtendedSocket) =>{
     socket.join(user.id)
 
     socket.broadcast.emit("user_connected", {
-        userID: socket.id,
+        socket_id: socket.id,
         user: socket.user,
-      });
+    })
 
 
     let sockets = []

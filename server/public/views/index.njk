@@ -83,6 +83,13 @@
             console.log(err)
         })
 
+        socket.on("user_connected", (socket) => {
+
+            $("<div>", {class:"online_users"}).appendTo("body")
+
+            $("<div>", {class: "user " + socket.user.id, text: user.name}).appendTo(".online_users")
+        })
+
 
         function createReceiverInput(receiver){
             $("<input>").attr({
@@ -113,12 +120,12 @@
         } 
 
         //carrega os users online
-        socket.on("users", (users) => {
+        socket.on("users", (sockets) => {
  
-            for(const user of users){          
+            for(const socket of sockets){          
                 $("<button/>", {
-                    text: user.user.name, 
-                    id:"user " + user.user.id,
+                    text: socket.user.name, 
+                    id:"user " + socket.user.id,
                    on: {
                         click: function (event){
                             

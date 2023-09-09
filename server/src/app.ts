@@ -29,6 +29,7 @@ import nunjucks from "nunjucks"
 
 //se der ruim tirar
 import methodOverride from "method-override"
+import { ExtendedSocket} from "./@types/socketIO";
 
 
 const app = express()
@@ -64,7 +65,11 @@ app.use(redisSession)
 io.use(wrapSessionForSocketIo(redisSession))
 
 
-io.use((socket, next) => {
+
+
+
+io.use((socket: ExtendedSocket, next) => {
+
     //@ts-expect-error
     const user = socket.request.session.user
 
@@ -72,25 +77,30 @@ io.use((socket, next) => {
         return next(new Error("Invalid user!"))
     }
 
-    //@ts-expect-error
+    
     socket.user = user
 
 
-    
     next()
 
 })
 
-io.on("connection", (socket: Socket) =>{
+io.on("connection", (socket: ExtendedSocket) =>{
     
     //@ts-expect-error
     const user = socket.request.session.user
 
     socket.join(user.id)
 
+    socket.broadcast.emit("user_connected", {
+        userID: socket.id,
+        user: socket.user,
+      });
+
+
     let sockets = []
     for(let [id, socket] of io.of("/").sockets){
-
+        
         sockets.push({
             socket_id: id, 
             //@ts-expect-error
@@ -98,7 +108,8 @@ io.on("connection", (socket: Socket) =>{
         })
 
     }
-
+    
+   
     socket.emit("users", sockets)
     
 

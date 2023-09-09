@@ -41,13 +41,20 @@
 
     </div>
 
+
+
+    
     <script type="text/javascript">
+   
+        const user = {{user | dump | safe}}
 
         
 
         var socket = io("http://localhost:3333", {
                 autoConnect: false
         })
+        
+        
 
         //connecta o user no socket.io se houver um user_id
         function onLoginSelection(user_id) {
@@ -108,7 +115,7 @@
         //carrega os users online
         socket.on("users", (users) => {
  
-            for(user of users){          
+            for(const user of users){          
                 $("<button/>", {
                     text: user.user.name, 
                     id:"user " + user.user.id,
@@ -127,17 +134,17 @@
         })
 
 
-//para o usuario que mandou
+        //para o usuario que mandou
         function renderSubmitedMessage(message){
-        
+
             $(".messages").append("<div class='message'> <strong> " + message.sender.name + "</strong>: " + message.message +"</div>")
         
         }
 
-//para um user que vai receber
+        //para um user que vai receber
         function renderEmitedMessage(message){
         
-                     //se for de um usuario
+             //se for de um usuario
             if(message.sender.id){
                 
                 catchReceiver(event, message.sender.id)
@@ -148,9 +155,7 @@
         
         }
 
-    // <!--vai pegar as msgs passafas-->
-
-
+        // <!--vai pegar as msgs passadaas-->
         //carrega msgs antigas
         socket.on("previous_messages", (messages) => {
             for(message of messages){
@@ -159,7 +164,7 @@
         })
 
    
-    // <!--vai pegar a msg que foi emitida e exibir para os outros users -->
+        // <!--vai pegar a msg que foi emitida e exibir para os outros users -->
         socket.on("emit_message", (message) => {
         
             renderEmitedMessage(message)
@@ -169,7 +174,7 @@
 
         {# const receiver #}
 
-    // vai mandar a msg pro servidor
+        // vai mandar a msg pro servidor
         $("#chat").submit(function(event){
     
             event.preventDefault()
@@ -206,7 +211,7 @@
         
             const [, room] = event.target.className.split(" ")
 
-            console.log(room)
+
 
             socket.emit("join_room", room)
         
@@ -219,6 +224,6 @@
 
     </script>
 
-
+    <script src="scripts.js"></script>
 </body>
 </html>

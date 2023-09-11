@@ -1,15 +1,18 @@
 html,
 body {
     height: 100%;
+    display: flex;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+
 }
 
 #chat {
+    margin-top: 100px;
     height: 100%;
     display: flex;
     justify-content: center;
@@ -45,12 +48,22 @@ button {
     padding: 20px;
 }
 
+.users,
 .rooms {
+    margin-top: 100px;
     height: 100px;
+    width: 200px;
     display: flex;
-    justify-content: center;
+
+
+    flex-direction: column;
+}
+
+.user button {
+    width: 150px;
+    height: 35px;
+    text-align: start;
     align-items: center;
-    flex-direction: row;
 }
 
 .rooms div button {

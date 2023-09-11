@@ -12,33 +12,20 @@
 </head>
 <body>
     <span>{{user.name}}</span>
+
+    <div class="users">
+        <p>Usuarios conectados</p>
+
+        
+    </div>
+
     <form id=chat>
         <div class="messages"></div>
         <input type="text" name="message" placeholder="...">
         <button type="submit">Enviar</button>
     </form>
     <div class="rooms">
-{#         
-        <div>
-        
-            <button class="room room_1">sala 1</button>
-            
-
-        </div>
-        <div>
-        
-            <button class="room room_2">sala 2</button>
-            
-
-        </div>
-        <div>
-        
-            <button class="room room_3">sala 3</button>
-            
-
-        </div>
-         #}
-
+   
     </div>
 
 
@@ -55,7 +42,7 @@
         })
         
         
-
+////CONEXAO
         //connecta o user no socket.io se houver um user_id
         function onLoginSelection(user_id) {
             
@@ -67,7 +54,7 @@
 
         onLoginSelection("{{user.id}}")
 
-
+////ERRORS
         //se houver erro
         socket.on("connect_error", (err) => {
             if (err.message === "invalid username") {
@@ -83,18 +70,15 @@
             console.log(err)
         })
 
-        socket.on("user_connected", (socket) => {
-
-            $("<div>", {class:"online_users"}).appendTo("body")
-
-            $("<div>", {class: "user " + socket.user.id, text: user.name}).appendTo(".online_users")
-        })
-
+       
+//// USERS
 
         function createReceiverInput(receiver){
+            
+            
             $("<input>").attr({
                 type: "hidden",
-                id: "receiver",
+                
                 name: "receiver",
                 value: receiver
             })
@@ -105,28 +89,29 @@
         function catchReceiver(event, receiver){
             
             if(!receiver){
-                receiver = event.target.id.split(" ")[1]
+                receiver = event.target.id
             }
 
             //cria um botao para mandar a msg pra um user
-            if(!$("input#receiver").length){
+            if(!$("input[name=receiver]").length){
 
                 createReceiverInput(receiver)
             }else{
-            
-                $("input#receiver").val(receiver)
+           
+                $("input[name=receiver]").val(receiver)
 
             }
         } 
 
-        //carrega os users online
-        socket.on("users", (sockets) => {
- 
-            for(const socket of sockets){          
-                $("<button/>", {
+        function createUserDiv(socket){
+            $("<div>", {
+                class: "user"    
+            }).appendTo(".users")
+
+            $("<button/>", {
                     text: socket.user.name, 
-                    id:"user " + socket.user.id,
-                   on: {
+                    id: socket.user.id,
+                    on: {
                         click: function (event){
                             
                             catchReceiver(event)
@@ -134,12 +119,44 @@
                         }
                     }
                    
-                }).appendTo(".rooms")
+            }).appendTo(".user")
+        }
+
+        //carrega os users online
+        socket.on("users", (sockets) => {
+ 
+            for(const socket of sockets){   
+
+                if(socket.user.id !== user.id){
+                    createUserDiv(socket)
+                }    
                 
             }
       
         })
 
+
+        //update dos users online        
+        socket.on("user_connected", (socket) => {
+
+            //$("<div>", {class:"online_users"}).appendTo("body")
+            if(!$(`#${socket.user.id}`).length){ 
+               
+               if(socket.user.id !== user.id){
+                    createUserDiv(socket)
+                }    
+                
+            }
+           
+        })
+
+        socket.on("user_disconnected", (user) => {
+        
+            console.log("user " + user.name + " saiu" )
+        })
+
+
+//// MENSAGENS
 
         //para o usuario que mandou
         function renderSubmitedMessage(message){
@@ -213,6 +230,8 @@
         }) 
 
 
+
+////TROCA DE SALA
         //muda de sala
         $(".room").click(function(event){
         
@@ -231,6 +250,5 @@
 
     </script>
 
-    <script src="scripts.js"></script>
 </body>
 </html>

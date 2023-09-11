@@ -147,6 +147,11 @@ io.on("connection", (socket: ExtendedSocket) =>{
     socket.on("leave_room", (room) => {
         socket.leave(room)
     })
+
+    socket.on("disconnect", (reason) => {
+
+        io.emit("user_disconnected", {user: user})
+    })
     
 
 })

@@ -129,7 +129,9 @@ io.on("connection", (socket: ExtendedSocket) =>{
         }
 
 
-        socket.broadcast.to(data.receiver).emit("emit_message", data)
+        // socket.broadcast.to(data.receiver).emit("emit_message", data)
+        //(abaixo)manda para o sender e o receiver, resolve o problema do sender com duas abas abertas
+        socket.to(data.sender.id).to(data.receiver).emit("emit_message", data)
         //
         //.broadcast.emit("emit_message", data)
     })

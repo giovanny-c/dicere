@@ -93,13 +93,15 @@
             }
 
             //cria um botao para mandar a msg pra um user
-            if(!$("input[name=receiver]").length){
+            if(receiver !== user.id){
+                if(!$("input[name=receiver]").length){
 
-                createReceiverInput(receiver)
-            }else{
-           
-                $("input[name=receiver]").val(receiver)
+                    createReceiverInput(receiver)
+                }else{
+            
+                    $("input[name=receiver]").val(receiver)
 
+                }
             }
         } 
 
@@ -108,6 +110,7 @@
                 class: "user"    
             }).appendTo(".users")
 
+            //console.log(socket.user)
             $("<button/>", {
                     text: socket.user.name, 
                     id: socket.user.id,
@@ -125,9 +128,10 @@
         //carrega os users online
         socket.on("users", (sockets) => {
  
-            for(const socket of sockets){   
-
+            for(const socket of sockets){ 
+             
                 if(socket.user.id !== user.id){
+
                     createUserDiv(socket)
                 }    
                 

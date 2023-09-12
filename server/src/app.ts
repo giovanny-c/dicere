@@ -152,7 +152,7 @@ io.on("connection", (socket: ExtendedSocket) =>{
 
     socket.on("disconnect", (reason) => {
 
-        io.emit("user_disconnected", {user: user})
+        io.emit("user_disconnected", user)
     })
     
 

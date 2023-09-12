@@ -87,10 +87,10 @@ io.use((socket: ExtendedSocket, next) => {
 
 io.on("connection", (socket: ExtendedSocket) =>{
     
-    //@ts-expect-error
-    const user = socket.request.session.user
+   
+    socket.join(socket.user.id)
 
-    socket.join(user.id)
+    
 
     socket.broadcast.emit("user_connected", {
         socket_id: socket.id,
@@ -150,10 +150,20 @@ io.on("connection", (socket: ExtendedSocket) =>{
         socket.leave(room)
     })
 
-    socket.on("disconnect", (reason) => {
+    socket.on("disconnect", async (reason) => {
 
-        io.emit("user_disconnected", user)
-    })
+            const matchingSockets = await io.in(socket.user.id).fetchSockets();
+           
+            const isDisconnected = matchingSockets.length === 0;
+            
+            //se nao ouver sockets nesse room vai emitir o user disconnected
+            if (isDisconnected) {
+            // // notify other users
+                socket.broadcast.emit("user_disconnected", socket.user);
+        
+            }
+        }
+    )
     
 
 })

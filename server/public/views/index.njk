@@ -156,13 +156,20 @@
                     createUserDiv(socket)
                 }    
                 
+            }else{
+                $(`#${socket.user.id}`).removeClass("offline")
             }
            
         })
 
         socket.on("user_disconnected", (user) => {
-        
-            console.log("user " + user.id + " saiu" )
+            
+            const userDiv = $("#"+user.id).addClass("offline")
+
+            //userDiv.click(function(event){
+            // preventDefault()
+            //})??
+            //console.log("saiu" + )
         })
 
 

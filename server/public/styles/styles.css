@@ -70,3 +70,7 @@ button {
     margin: 20px 20px;
     width: 50px;
 }
+
+.offline {
+    background-color: rgb(102, 102, 102);
+}

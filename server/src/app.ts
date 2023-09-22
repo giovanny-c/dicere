@@ -21,6 +21,7 @@ import { redisSession, wrapSessionForSocketIo } from "./shared/session/redisSess
 import {createServer} from "http"
 import socketio, {Socket} from "socket.io"
 
+import { redisClient } from "./shared/redis/redisConfig";
 
 import router from "./routes/router";
 import { errorHandler } from "./shared/erros/errorHandler";
@@ -30,6 +31,7 @@ import nunjucks from "nunjucks"
 //se der ruim tirar
 import methodOverride from "method-override"
 import { ExtendedSocket} from "./@types/socketIO";
+import { RedisMessageSotore } from "./shared/redis/redisMessageStore";
 
 
 const app = express()
@@ -85,7 +87,10 @@ io.use((socket: ExtendedSocket, next) => {
 
 })
 
-io.on("connection", (socket: ExtendedSocket) =>{
+
+const redisMessageSotore = new RedisMessageSotore()
+
+io.on("connection", async (socket: ExtendedSocket) =>{
     
    
     socket.join(socket.user.id)
@@ -98,22 +103,57 @@ io.on("connection", (socket: ExtendedSocket) =>{
     })
 
 
-    let sockets = []
-    for(let [id, socket] of io.of("/").sockets){
+    const sockets = []
+    const messagesPerUser = new Map();
+
+    (await redisMessageSotore.findMessageForUser(socket.user.id)).forEach((message) => {
+
+        const {to, from} = message
+
+        // pega o outro usuario
+        const otherUser = socket.user.id === from ? to : from
+        
+        //se ja existir no map poe a mensagem dele lá
+        if(messagesPerUser.has(otherUser)){
+            messagesPerUser.get(otherUser).push(message)
+        
+        }else{//se nao cria ele e poe a primeira vez
+            messagesPerUser.set(otherUser, [message])
+        }
+
+    })
+
+
+    io.of("/").sockets.forEach((socket: ExtendedSocket)=> {
         
         sockets.push({
-            socket_id: id, 
-            //@ts-expect-error
-            user: socket.user
+            socket_id: socket.id, 
+            //
+            user: socket.user,
+            messages: messagesPerUser.get(socket.user)
         })
 
-    }
-    
+    });
+
+   
    
     socket.emit("users", sockets)
     
 
-    // socket.emit("previous_messages", temporario)
+    socket.on("request_previous_messages", (data) => {
+
+        const messages = sockets.find((socket) => {
+            if(socket.user.id === data.user_id){
+                return socket.messages
+            }
+        })
+
+        console.log(messages)
+
+        socket.emit("previous_messages", messages)
+
+    })
+
 
     //quando o evento for disparado pelo cliente no front end
     socket.on("send_message", (data) => {
@@ -128,12 +168,22 @@ io.on("connection", (socket: ExtendedSocket) =>{
             socket.emit("emit_error", "user not found")
         }
 
+        const messageObject = {
+            message: data.message,
+            to: data.receiver.id,
+            from: data.sender.id
+        }
 
+        
         // socket.broadcast.to(data.receiver).emit("emit_message", data)
         //(abaixo)manda para o sender e o receiver, resolve o problema do sender com duas abas abertas
-        socket.to(data.sender.id).to(data.receiver).emit("emit_message", data)
+        socket.to(data.sender.id).to(data.receiver.id).emit("emit_message", data)
         //
         //.broadcast.emit("emit_message", data)
+        
+        //salva a msg
+        redisMessageSotore.saveMessage(messageObject)
+        
     })
 
     

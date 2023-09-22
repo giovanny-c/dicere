@@ -92,6 +92,9 @@
                 receiver = event.target.id
             }
 
+            //vai pedir as msgs desse user
+            //socket.emit("request_previous_messages", {user_id: receiver})
+
             //cria um botao para mandar a msg pra um user
             if(receiver !== user.id){
                 if(!$("input[name=receiver]").length){
@@ -198,12 +201,24 @@
 
         // <!--vai pegar as msgs passadaas-->
         //carrega msgs antigas
-        socket.on("previous_messages", (messages) => {
-            for(message of messages){
-                renderEmitedMessage(message)
-            }
-        })
+       // socket.on("previous_messages", (messages) => {
+        //    for(message of messages){
+        //        renderEmitedMessage(message)
+        //    }
+        //})
 
+/*        socket.on("previous_messages", (messages) => {
+
+           // $(".message").remove()
+
+            console.log(messages)
+
+            messages.foreach((message) => {
+                renderSubmitedMessage(message)
+            })
+
+        })
+*/
    
         // <!--vai pegar a msg que foi emitida e exibir para os outros users -->
         socket.on("emit_message", (message) => {
@@ -224,13 +239,13 @@
 
             $("input[name=message]").val("")
 
-            var receiver = $("input[name=receiver]").val()
+            var receiver_id = $("input[name=receiver]").val()
             
             if(message.length){
 
                 var messageObject = {
                     sender: {name:"{{user.name}}", id:"{{user.id}}"},
-                    receiver,
+                    receiver: {id: receiver_id},
                     message
                 }
     

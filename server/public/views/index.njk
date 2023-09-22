@@ -88,12 +88,16 @@
 
         function catchReceiver(event, receiver){
             
+            //se for do click no botao, nao do enviar
             if(!receiver){
+
                 receiver = event.target.id
+
+                socket.emit("request_previous_messages", {user_id: receiver})
+
             }
 
             //vai pedir as msgs desse user
-            //socket.emit("request_previous_messages", {user_id: receiver})
 
             //cria um botao para mandar a msg pra um user
             if(receiver !== user.id){
@@ -123,8 +127,10 @@
                     id: socket.user.id,
                     on: {
                         click: function (event){
-                            
+                        
                             catchReceiver(event)
+
+
                         
                         }
                     }
@@ -207,18 +213,20 @@
         //    }
         //})
 
-/*        socket.on("previous_messages", (messages) => {
+        socket.on("previous_messages", (messages) => {
 
-           // $(".message").remove()
+            $(".message").remove()
 
             console.log(messages)
 
-            messages.foreach((message) => {
+            for(message of messages){
+            
                 renderSubmitedMessage(message)
-            })
+            
+            }
 
         })
-*/
+
    
         // <!--vai pegar a msg que foi emitida e exibir para os outros users -->
         socket.on("emit_message", (message) => {

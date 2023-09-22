@@ -104,54 +104,75 @@ io.on("connection", async (socket: ExtendedSocket) =>{
 
 
     const sockets = []
-    const messagesPerUser = new Map();
-
-    (await redisMessageSotore.findMessageForUser(socket.user.id)).forEach((message) => {
-
-        const {to, from} = message
-
-        // pega o outro usuario
-        const otherUser = socket.user.id === from ? to : from
-        
-        //se ja existir no map poe a mensagem dele lá
-        if(messagesPerUser.has(otherUser)){
-            messagesPerUser.get(otherUser).push(message)
-        
-        }else{//se nao cria ele e poe a primeira vez
-            messagesPerUser.set(otherUser, [message])
-        }
-
-    })
+    // const conversation_messages = new Map()
 
 
     io.of("/").sockets.forEach((socket: ExtendedSocket)=> {
-        
         sockets.push({
             socket_id: socket.id, 
-            //
             user: socket.user,
-            messages: messagesPerUser.get(socket.user)
+            // messages: messagesPerUser.get(socket.user.id)
         })
 
     });
 
-   
-   
     socket.emit("users", sockets)
+
+    
     
 
-    socket.on("request_previous_messages", (data) => {
+    socket.on("request_previous_messages", async (data) => {
 
-        const messages = sockets.find((socket) => {
-            if(socket.user.id === data.user_id){
-                return socket.messages
-            }
-        })
+        //acha o outro user nnos sockets
+        const otherUser = sockets.find(socket => socket.user.id === data.user_id);
+            
+        if(otherUser){
 
-        console.log(messages)
+            
+            //procura as msgs
+            let messages = [];
+            
+            (await redisMessageSotore.findMessageForUser(socket.user.id)).forEach((message) => {
 
-        socket.emit("previous_messages", messages)
+                
 
+                const {to, from} = message
+        
+                
+                //pega apenas dos users da conversa
+                if((to === otherUser.user.id || to === socket.user.id) && (from === otherUser.user.id || from === socket.user.id)){
+                    
+                   
+                    if(to === socket.user.id){
+
+                        messages.push({
+                            message: message.message, 
+                            sender: {
+                                id: socket.user.id,
+                                name: socket.user.name
+                            }
+                        })
+                        
+                    }
+                    if(to === otherUser.user.id){
+
+                        messages.push({
+                            message: message.message, 
+                            sender: {
+                                id: otherUser.user.id,
+                                name: otherUser.user.name
+                            }
+                        })
+                    }
+
+                }
+
+        
+            })
+                
+
+            socket.emit("previous_messages", messages)
+        }
     })
 
 

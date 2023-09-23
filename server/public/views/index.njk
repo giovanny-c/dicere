@@ -110,6 +110,12 @@
 
                 }
             }
+
+            //remove o new message
+            const newMessage = event.target.parent.$(".new_message")
+            if(newMessage.length){
+                newMessage.remove()
+            }
         } 
 
         function createUserDiv(socket){
@@ -130,7 +136,7 @@
                         
                             catchReceiver(event)
 
-
+                            
                         
                         }
                     }
@@ -217,7 +223,6 @@
 
             $(".message").remove()
 
-            console.log(messages)
 
             for(message of messages){
             
@@ -230,8 +235,21 @@
    
         // <!--vai pegar a msg que foi emitida e exibir para os outros users -->
         socket.on("emit_message", (message) => {
-        
-            renderEmitedMessage(message)
+
+            if($("input[name=receiver]").val() === message.sender.id){
+                
+                renderEmitedMessage(message)
+            
+            }
+            else{
+            
+                const userDiv =  $(`button#${message.sender.id}`).parent()
+            
+                userDiv.append($("<span>", {class: "new_message"}))
+            
+            }
+            
+
         })
 
         

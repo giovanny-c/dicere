@@ -46,6 +46,7 @@ button {
     margin: 20px 0;
     border: 1px solid #ddd;
     padding: 20px;
+    overflow: scroll;
 }
 
 .users,
@@ -73,4 +74,11 @@ button {
 
 .offline {
     background-color: rgb(102, 102, 102);
+}
+
+.new_message {
+    background-color: rgba(245, 63, 63, 0.89);
+    border-radius: 4px;
+    width: 10px;
+    height: 10px;
 }

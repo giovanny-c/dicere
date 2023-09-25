@@ -32,6 +32,7 @@ import nunjucks from "nunjucks"
 import methodOverride from "method-override"
 import { ExtendedSocket} from "./@types/socketIO";
 import { RedisMessageSotore } from "./shared/redis/redisMessageStore";
+import { v4 as uuidV4 } from "uuid";
 
 
 const app = express()
@@ -118,6 +119,9 @@ io.on("connection", async (socket: ExtendedSocket) =>{
 
     socket.emit("users", sockets)
 
+    // //notifica o user, quais users mandaram msg pra ele enquanto ele estava ofline
+    // const {from_users} = socket.data.unreaded_message_users
+    // socket.emit("unread_messages_from", from_users)
     
     
 
@@ -179,20 +183,27 @@ io.on("connection", async (socket: ExtendedSocket) =>{
     //quando o evento for disparado pelo cliente no front end
     socket.on("send_message", (data) => {
         
-        // temporario.push(data)
+        
+
+        // data: {
+        //     sender: {id, name},
+        //     receiver: {id},
+        //     message
+        // }
 
         
-        // o socker(client) vai emitir esse mesmo evento para todos menos ele mesmo
-        //usar o room depois
         if(!data.receiver){
 
             socket.emit("emit_error", "user not found")
         }
 
+        
         const messageObject = {
+            
             message: data.message,
-            to: data.receiver.id,
-            from: data.sender.id
+            to: data.sender.id,
+            from: data.receiver.id
+            //readed: false
         }
 
         
@@ -207,6 +218,13 @@ io.on("connection", async (socket: ExtendedSocket) =>{
         
     })
 
+
+
+    // socket.on("message_not_readed", (data) => {
+
+    //     socket.data.unreaded_message_users.push(data.from)
+
+    // })
     
 
     socket.on("join_room", (room) => {

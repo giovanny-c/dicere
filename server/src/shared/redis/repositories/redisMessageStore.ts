@@ -16,10 +16,10 @@ class RedisMessageStore {
         .exec()
     }
 
-    async findMessageForUser(user_id: Pick<RedisUser, "id">){
+    async findMessageForUser(user: Pick<RedisUser, "id">){
     
         const messages = await redisClient
-        .lRange(`messages:${user_id}`, 0, -1)
+        .lRange(`messages:${user.id}`, 0, -1)
 
         return messages.map((message) => JSON.parse(message)) as Message[]
 

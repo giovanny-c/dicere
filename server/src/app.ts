@@ -210,6 +210,53 @@ io.on("connection", async (socket: ExtendedSocket) =>{
         
     })
 
+    socket.on("create_notification", async(data) => {
+
+        //pega todas as notificações
+        const notifications = await redisUserStore.findNotificationsForUser({id: user.id})
+
+        
+
+        //pega a notificaçao do user X para remove-la da lista
+        let notification = notifications.find(nt => nt.user.id === data.user.id)
+
+        //se tiver a notificaçao remove ela (para dar update depois)
+        if(notification){
+            await redisUserStore.removeUserNotification({id: user.id}, notification)
+            
+            //update na quantidade de msgs
+            if( typeof data.quantity === "number"){
+
+                notification.quantity += +(data.quantity)
+            }
+        }else{
+
+            notification = data
+        }
+
+
+
+        //poe a notificação atualizada
+        await redisUserStore.addUserNotification({id: user.id}, notification)
+
+
+    })
+
+    socket.on("message_visualized", async (data) => {
+
+        //pega todas as notificações
+        const notifications = await redisUserStore.findNotificationsForUser({id: user.id})
+
+        
+
+        //pega a notificaçao do user X para remove-la da lista
+        const notification = notifications.find(nt => nt.user.id === data.user_id)
+
+        await redisUserStore.removeUserNotification({id: user.id}, notification)
+
+    })
+
+
 
 
     socket.on("join_room", (room) => {

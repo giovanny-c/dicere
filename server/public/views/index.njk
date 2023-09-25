@@ -92,11 +92,10 @@
 
                 receiver = event.target.id
 
-                socket.emit("request_previous_messages", {user_id: receiver})
-
             }
 
             //vai pedir as msgs desse user
+            socket.emit("request_previous_messages", {user_id: receiver})
 
             //cria um botao para mandar a msg pra um user
             if(receiver !== user.id){
@@ -113,9 +112,11 @@
             
         } 
 
-        function createUserDiv(socket){
+
+        //cria a div
+        function createUserDiv(_socket){
             //se ja nao existir essa div
-            if(!$("button#"+socket.user.id).length){
+            if(!$("button#"+_socket.user.id).length){
             
                 $("<div>", {
                     class: "user"    
@@ -123,8 +124,8 @@
 
                 
                 $("<button/>", {
-                    text: socket.user.name, 
-                    id: socket.user.id,
+                    text: _socket.user.name, 
+                    id: _socket.user.id,
                     on: {
                         click: function (event){
                         
@@ -133,8 +134,12 @@
                             //remove o new message
                             const new_message = $(this).parent().find(".new_message")
 
-                            if(new_message){
+                                
+                            if(new_message.length){
                                 new_message.remove()
+                                
+                                //message visualizedinf user X
+                                socket.emit("message_visualized", {user_id: _socket.user.id})
                             }       
                         
                         }
@@ -206,7 +211,8 @@
             }
 
             $(".messages").append("<div class='message'> <strong> " + message.sender.name + "</strong>: " + message.message +"</div>")
-        
+
+
         
         }
 
@@ -239,13 +245,11 @@
             
                 const userDiv =  $(`button#${message.sender.id}`).parent()
             
-                userDiv.append($("<span>", {class: "new_message", text: "."}))
+                userDiv.append($("<span>", {class: "new_message", text: "1"}))
 
-                /*
-                socket.emit("message_not_readed", {
-                    from: message.sender.id
-                })
-                */
+                //manda um emit pra criar a notificação
+                socket.emit("create_notification", {user: {...message.sender}, quantity: 1} )
+                
             
             }
             
@@ -256,27 +260,27 @@
         socket.on("notifications", (data) => {
 
                        
-
-            data.foreach((notification) => {
+            //coloca as notifications nas div de user
+            for(notification of data) {
                 console.log(notification)
 
                 const userBtn = $(`#${notification.user.id}`)
-
+                console.log(userBtn.parent())
                 if(userBtn.length){
 
-                    userBtn.parent.append($("<span>", {class: "new_message", text: `${notification.quantity}`}))
+                    userBtn.parent().append($("<span>", {class: "new_message", text: `${notification.quantity}`}))
 
                 }
                 /*se nao tiver online cria a div do user*/
                 else{
                     createUserDiv(notification.user)
 
-                    $(`#${notification.user.id}`).parent.append($("<span>", {class: "new_message", text: `${notification.quantity}`}))
+                    $(`#${notification.user.id}`).parent().append($("<span>", {class: "new_message", text: `${notification.quantity}`}))
                 }
                 
 
             
-            })
+            }
         })
 
         

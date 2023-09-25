@@ -15,31 +15,39 @@ class RedisUserStore {
         
     }
 
-    async findUser(user_id: Pick<RedisUser, "id">){
+    async findUser(user: Pick<RedisUser, "id">){
     
-        const user: RedisUser = JSON.parse(await redisClient.get(`user:${user_id}`))
+        return JSON.parse(await redisClient.get(`user:${user.id}`))
 
-        return user
+        
 
     }
 
-    async saveUsersNotification(user_id: Pick<RedisUser, "id">, notification: UserNotification){
+    async addUserNotification(user: Pick<RedisUser, "id">, notification: UserNotification){
 
         const value = JSON.stringify(notification)
 
-        await redisClient.rPush(`notifications:${user_id}`, value)
+        await redisClient.rPush(`notifications:${user.id}`, value)
 
     }
 
+    async removeUserNotification(user: Pick<RedisUser, "id">, notification: UserNotification){
 
-    async findNotificationsForUser(user_id: Pick<RedisUser, "id">){
+        const value = JSON.stringify(notification)
+
+        redisClient.lRem(`notifications:${user.id}`, 0, value)
+    }
+
+    async findNotificationsForUser(user: Pick<RedisUser, "id">){
     
         const notifications = await redisClient
-        .lRange(`notifications:${user_id}`, 0, -1)
+        .lRange(`notifications:${user.id}`, 0, -1)
 
         return notifications.map((notification) => JSON.parse(notification)) as UserNotification[]
 
     }
+
+    
 
 
 

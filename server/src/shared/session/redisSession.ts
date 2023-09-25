@@ -1,6 +1,6 @@
 import "dotenv/config"
 
-import { redisClient } from "../redis/redisConfig"
+import { redisClient } from "../redis/config/redisConfig"
 
 import RedisStore from "connect-redis"
 

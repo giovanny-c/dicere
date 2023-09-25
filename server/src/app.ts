@@ -14,14 +14,14 @@ import "./shared/container"
  
 import "./database/index"
 
-import "./shared/redis/redisConnect"
+import "./shared/redis"
 
 import { redisSession, wrapSessionForSocketIo } from "./shared/session/redisSession";
 
 import {createServer} from "http"
 import socketio, {Socket} from "socket.io"
 
-import { redisClient } from "./shared/redis/redisConfig";
+import { redisClient } from "./shared/redis/config/redisConfig";
 
 import router from "./routes/router";
 import { errorHandler } from "./shared/erros/errorHandler";
@@ -31,8 +31,9 @@ import nunjucks from "nunjucks"
 //se der ruim tirar
 import methodOverride from "method-override"
 import { ExtendedSocket} from "./@types/socketIO";
-import { RedisMessageSotore } from "./shared/redis/redisMessageStore";
+import { RedisMessageStore } from "./shared/redis/repositories/redisMessageStore";
 import { v4 as uuidV4 } from "uuid";
+import { RedisUserStore } from "./shared/redis/repositories/redisUserStore";
 
 
 const app = express()
@@ -70,6 +71,9 @@ io.use(wrapSessionForSocketIo(redisSession))
 
 
 
+const redisMessageSotore = new RedisMessageStore()
+const redisUserStore = new RedisUserStore()
+
 
 io.use((socket: ExtendedSocket, next) => {
 
@@ -88,72 +92,68 @@ io.use((socket: ExtendedSocket, next) => {
 
 })
 
-
-const redisMessageSotore = new RedisMessageSotore()
-
 io.on("connection", async (socket: ExtendedSocket) =>{
     
-   
+    //entra na propria sala
     socket.join(socket.user.id)
 
+    //procurar o user / se nao tiver cria
+    const user = await redisUserStore.findUser({id: socket.user.id}) || await redisUserStore.saveUser(socket.user)
+
     
-
-    socket.broadcast.emit("user_connected", {
-        socket_id: socket.id,
-        user: socket.user,
-    })
-
-
+    //procura todos os users online no namespace "/"
     const sockets = []
-    // const conversation_messages = new Map()
-
-
     io.of("/").sockets.forEach((socket: ExtendedSocket)=> {
         sockets.push({
             socket_id: socket.id, 
             user: socket.user,
             // messages: messagesPerUser.get(socket.user.id)
         })
-
+        
     });
-
+    
+    //manda para o user todos os users que estão concectados
     socket.emit("users", sockets)
 
-    // //notifica o user, quais users mandaram msg pra ele enquanto ele estava ofline
-    // const {from_users} = socket.data.unreaded_message_users
-    // socket.emit("unread_messages_from", from_users)
-    
-    
+    // ve se tem notificaçoes
+    const notifications = await redisUserStore.findNotificationsForUser({id: user.id})
+    if(notifications || notifications.length){
+        // mandar as notificações pra ele
+        socket.emit("notifications", notifications)
+    }
 
+    //manda para todos, que o user conectou
+    socket.broadcast.emit("user_connected", {
+        socket_id: socket.id,
+        user: socket.user,
+    })
+
+    //ouve o pedido das mensagens anteriores
     socket.on("request_previous_messages", async (data) => {
 
         //acha o outro user nnos sockets
         const otherUser = sockets.find(socket => socket.user.id === data.user_id);
             
         if(otherUser){
-
-            
+    
             //procura as msgs
             let messages = [];
-            
-            (await redisMessageSotore.findMessageForUser(socket.user.id)).forEach((message) => {
-
-                
+            (await redisMessageSotore.findMessageForUser({id: user.id})).forEach((message) => {
 
                 const {to, from} = message
         
                 
                 //pega apenas dos users da conversa
-                if((to === otherUser.user.id || to === socket.user.id) && (from === otherUser.user.id || from === socket.user.id)){
+                if((to === otherUser.user.id || to === user.id) && (from === otherUser.user.id || from === user.id)){
                     
                    
-                    if(to === socket.user.id){
+                    if(to === user.id){
 
                         messages.push({
                             message: message.message, 
                             sender: {
-                                id: socket.user.id,
-                                name: socket.user.name
+                                id: user.id,
+                                name: user.name
                             }
                         })
                         
@@ -182,14 +182,6 @@ io.on("connection", async (socket: ExtendedSocket) =>{
 
     //quando o evento for disparado pelo cliente no front end
     socket.on("send_message", (data) => {
-        
-        
-
-        // data: {
-        //     sender: {id, name},
-        //     receiver: {id},
-        //     message
-        // }
 
         
         if(!data.receiver){
@@ -220,20 +212,13 @@ io.on("connection", async (socket: ExtendedSocket) =>{
 
 
 
-    // socket.on("message_not_readed", (data) => {
-
-    //     socket.data.unreaded_message_users.push(data.from)
-
-    // })
-    
-
     socket.on("join_room", (room) => {
         
         socket.join(room)
 
     })
 
-    // socket.to().broadcast.emit("emit_message", )
+   
 
     socket.on("leave_room", (room) => {
         socket.leave(room)

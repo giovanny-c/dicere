@@ -1,4 +1,4 @@
-import { redisClient } from "./redisConfig";
+import { redisClient } from "./config/redisConfig";
 
 redisClient.on("error", (err) => {
     console.log(`Could not establish a connection with redis: ${err}`)

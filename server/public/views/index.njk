@@ -244,8 +244,26 @@
             else{
             
                 const userDiv =  $(`button#${message.sender.id}`).parent()
-            
-                userDiv.append($("<span>", {class: "new_message", text: "1"}))
+                //como somar as notificaçoes pelo fronte
+                //se ja tiver notificação antes
+                //se nao tiver 
+
+                const newMessage = userDiv.find(".new_message")
+
+                if(newMessage.length){
+
+                    let plusOne = parseInt(newMessage.text()) + 1
+
+                    newMessage.text(plusOne) 
+                
+                }
+
+                //so para a primeira
+                if(!newMessage.length){
+                    userDiv.append($("<span>", {class: "new_message", text: "1"}))
+                }    
+                
+                     
 
                 //manda um emit pra criar a notificação
                 socket.emit("create_notification", {user: {...message.sender}, quantity: 1} )
@@ -262,10 +280,9 @@
                        
             //coloca as notifications nas div de user
             for(notification of data) {
-                console.log(notification)
 
                 const userBtn = $(`#${notification.user.id}`)
-                console.log(userBtn.parent())
+                
                 if(userBtn.length){
 
                     userBtn.parent().append($("<span>", {class: "new_message", text: `${notification.quantity}`}))

@@ -241,8 +241,18 @@
                 renderEmitedMessage(message)
             
             }
-            else{
-            
+            else{ 
+                
+                //E SE NAO TIVER UMA USER DIV(for de um user que nao aparece na lista?)
+                //será q vai funcionar
+                if(!$(`button#${message.sender.id}`)){
+                    
+                    
+
+                    createUserDiv({user: {...message.sender} })
+
+                }
+
                 const userDiv =  $(`button#${message.sender.id}`).parent()
                 //como somar as notificaçoes pelo fronte
                 //se ja tiver notificação antes
